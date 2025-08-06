@@ -12,6 +12,7 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.8
+  fl_chart: ^0.68.0
 
   # Estado y arquitectura
   flutter_riverpod: ^2.5.1
