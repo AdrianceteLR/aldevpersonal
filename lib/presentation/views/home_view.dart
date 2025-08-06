@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/enhanced_summary_card.dart';
+import '../../widgets/training_summary_card.dart';
 import '../theme/app_colors.dart';
 
 class HomeView extends StatelessWidget {
@@ -18,7 +19,9 @@ class HomeView extends StatelessWidget {
             const SizedBox(height: 20),
             _buildFinanceSummary(),
             const SizedBox(height: 20),
-            // Aquí puedes agregar más secciones de resumen
+_buildTrainingSummary(),
+            const SizedBox(height: 20),
+            _buildSleepSummary(),
           ],
         ),
       ),
@@ -84,6 +87,82 @@ class HomeView extends StatelessWidget {
                 icon: Icons.trending_down,
                 color: AppColors.danger,
                 sparklineData: const [800, 780, 790, 760, 740, 750],
+                onTap: () {},
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTrainingSummary() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Entrenamiento',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TrainingSummaryCard(
+                title: 'Entrenamientos',
+                value: '4',
+                subtitle: 'Esta semana',
+                icon: Icons.fitness_center,
+                color: AppColors.primary,
+                onTap: () {},
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TrainingSummaryCard(
+                title: 'Peso Actual',
+                value: '75kg',
+                subtitle: '+2kg este mes',
+                icon: Icons.monitor_weight,
+                color: AppColors.success,
+                onTap: () {},
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSleepSummary() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Descanso',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TrainingSummaryCard(
+                title: 'Sueño Anoche',
+                value: '7.5h',
+                subtitle: 'Calidad: Buena',
+                icon: Icons.bedtime,
+                color: AppColors.accent,
+                onTap: () {},
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TrainingSummaryCard(
+                title: 'Promedio',
+                value: '7.2h',
+                subtitle: 'Última semana',
+                icon: Icons.schedule,
+                color: AppColors.primaryDark,
                 onTap: () {},
               ),
             ),

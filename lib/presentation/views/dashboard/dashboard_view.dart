@@ -1,7 +1,7 @@
 import 'package:aldevpersonal/domain/providers/dashboard_navigation_provider.dart';
 import 'package:aldevpersonal/presentation/views/assistant/assistant_view.dart';
 import 'package:aldevpersonal/presentation/views/finances/finances_view.dart';
-import 'package:aldevpersonal/presentation/views/home_view';
+import 'package:aldevpersonal/presentation/views/home_view.dart';
 import 'package:aldevpersonal/presentation/views/more_view.dart';
 import 'package:aldevpersonal/presentation/views/training/training_view.dart';
 import 'package:flutter/material.dart';
