@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/enhanced_summary_card.dart';
 import '../../widgets/training_summary_card.dart';
+import '../../widgets/device_status_widget.dart';
 import '../theme/app_colors.dart';
 
 class HomeView extends ConsumerWidget {
@@ -19,6 +20,8 @@ class HomeView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(isDark),
+            const SizedBox(height: 20),
+            const DeviceStatusWidget(),
             const SizedBox(height: 20),
             _buildFinanceSummary(isDark),
             const SizedBox(height: 20),
