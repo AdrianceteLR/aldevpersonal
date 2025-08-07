@@ -1,56 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/enhanced_summary_card.dart';
 import '../../widgets/training_summary_card.dart';
 import '../theme/app_colors.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.background : Colors.grey[50],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(isDark),
             const SizedBox(height: 20),
-            _buildFinanceSummary(),
+            _buildFinanceSummary(isDark),
             const SizedBox(height: 20),
-_buildTrainingSummary(),
+            _buildTrainingSummary(isDark),
             const SizedBox(height: 20),
-            _buildSleepSummary(),
+            _buildSleepSummary(isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return const Column(
+  Widget _buildHeader(bool isDark) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Bienvenido',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textPrimary : Colors.black87,
+          ),
         ),
         Text(
           'Resumen de tu día',
-          style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 16,
+            color: isDark ? AppColors.textSecondary : Colors.black54,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildFinanceSummary() {
+  Widget _buildFinanceSummary(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Finanzas',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textPrimary : Colors.black87,
+          ),
         ),
         const SizedBox(height: 12),
         Row(
@@ -96,13 +110,17 @@ _buildTrainingSummary(),
     );
   }
 
-  Widget _buildTrainingSummary() {
+  Widget _buildTrainingSummary(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Entrenamiento',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textPrimary : Colors.black87,
+          ),
         ),
         const SizedBox(height: 12),
         Row(
@@ -134,13 +152,17 @@ _buildTrainingSummary(),
     );
   }
 
-  Widget _buildSleepSummary() {
+  Widget _buildSleepSummary(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Descanso',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textPrimary : Colors.black87,
+          ),
         ),
         const SizedBox(height: 12),
         Row(

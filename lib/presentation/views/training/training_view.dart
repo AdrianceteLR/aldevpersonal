@@ -4,15 +4,16 @@ import 'package:aldevpersonal/widgets/progress_chart.dart';
 import 'package:aldevpersonal/widgets/training_summary_card.dart';
 import 'package:aldevpersonal/widgets/workout_plan_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TrainingView extends StatefulWidget {
+class TrainingView extends ConsumerStatefulWidget {
   const TrainingView({super.key});
 
   @override
-  State<TrainingView> createState() => _TrainingViewState();
+  ConsumerState<TrainingView> createState() => _TrainingViewState();
 }
 
-class _TrainingViewState extends State<TrainingView> with TickerProviderStateMixin {
+class _TrainingViewState extends ConsumerState<TrainingView> with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -23,19 +24,21 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.background : Colors.grey[50],
       body: Column(
         children: [
-          _buildHeader(),
-          _buildTabBar(),
+          _buildHeader(isDark),
+          _buildTabBar(isDark),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
                 _buildTodayTab(),
                 _buildProgressTab(),
-                _buildHistoryTab(),
+                _buildHistoryTab(isDark),
               ],
             ),
           ),
@@ -50,39 +53,39 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Entrenamiento',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
               ),
               Text(
                 'Tu rutina de hoy',
-                style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 16, color: isDark ? AppColors.textSecondary : Colors.black54),
               ),
             ],
           ),
           IconButton(
             onPressed: () => _showSleepDialog(context),
-            icon: const Icon(Icons.bedtime, color: AppColors.textPrimary),
+            icon: Icon(Icons.bedtime, color: isDark ? AppColors.textPrimary : Colors.black87),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TabBar(
@@ -92,7 +95,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
           borderRadius: BorderRadius.circular(12),
         ),
         labelColor: AppColors.textPrimary,
-        unselectedLabelColor: AppColors.textSecondary,
+        unselectedLabelColor: isDark ? AppColors.textSecondary : Colors.black54,
         tabs: const [
           Tab(text: 'Hoy'),
           Tab(text: 'Progreso'),
@@ -132,9 +135,9 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
             ],
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'Plan de Hoy',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? AppColors.textPrimary : Colors.black87),
           ),
           const SizedBox(height: 12),
           ...List.generate(2, (index) => Padding(
@@ -170,7 +173,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
     );
   }
 
-  Widget _buildHistoryTab() {
+  Widget _buildHistoryTab(bool isDark) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -178,7 +181,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
           ...List.generate(5, (index) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Card(
-              color: AppColors.surface,
+              color: isDark ? AppColors.surface : Colors.white,
               child: ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
@@ -190,13 +193,13 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
                 ),
                 title: Text(
                   'Entrenamiento ${index + 1}',
-                  style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87, fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(
                   '${DateTime.now().subtract(Duration(days: index)).day}/${DateTime.now().month} - 45min',
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16, color: isDark ? AppColors.textSecondary : Colors.black54),
               ),
             ),
           )),
@@ -206,10 +209,11 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
   }
 
   void _showWorkoutDetails(BuildContext context, WorkoutPlan workout) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: isDark ? AppColors.surface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -224,7 +228,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
             children: [
               Text(
                 workout.name,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -234,7 +238,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
                   itemBuilder: (context, index) {
                     final exercise = workout.exercises[index];
                     return Card(
-                      color: AppColors.background,
+                      color: isDark ? AppColors.background : Colors.grey[50],
                       margin: const EdgeInsets.only(bottom: 8),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -246,7 +250,7 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
                               children: [
                                 Text(
                                   exercise.name,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
                                 ),
                                 Checkbox(
                                   value: exercise.completed,
@@ -294,32 +298,33 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
   }
 
   void _showSleepDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Registrar Sueño', style: TextStyle(color: AppColors.textPrimary)),
+        backgroundColor: isDark ? AppColors.surface : Colors.white,
+        title: Text('Registrar Sueño', style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
               decoration: InputDecoration(
                 labelText: 'Horas dormidas',
-                labelStyle: const TextStyle(color: AppColors.textSecondary),
+                labelStyle: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
-            const Text('Calidad del sueño', style: TextStyle(color: AppColors.textSecondary)),
+            Text('Calidad del sueño', style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(5, (index) => IconButton(
                 onPressed: () {},
                 icon: Icon(
                   Icons.star,
-                  color: index < 3 ? AppColors.accent : AppColors.textSecondary,
+                  color: index < 3 ? AppColors.accent : (isDark ? AppColors.textSecondary : Colors.black54),
                 ),
               )),
             ),
@@ -336,14 +341,15 @@ class _TrainingViewState extends State<TrainingView> with TickerProviderStateMix
   }
 
   void _showAddWorkoutDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Nuevo Entrenamiento', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
+        backgroundColor: isDark ? AppColors.surface : Colors.white,
+        title: Text('Nuevo Entrenamiento', style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87)),
+        content: Text(
           '¿Qué tipo de entrenamiento quieres crear?',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
         ),
         actions: [
           TextButton(

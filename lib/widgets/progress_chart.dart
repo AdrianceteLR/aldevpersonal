@@ -16,9 +16,11 @@ class ProgressChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -26,10 +28,10 @@ class ProgressChart extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: isDark ? AppColors.textPrimary : Colors.black87,
               ),
             ),
             const SizedBox(height: 16),
@@ -46,7 +48,7 @@ class ProgressChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           return Text(
                             '${value.toInt()}$unit',
-                            style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                            style: TextStyle(fontSize: 10, color: isDark ? AppColors.textSecondary : Colors.black54),
                           );
                         },
                       ),
@@ -60,7 +62,7 @@ class ProgressChart extends StatelessWidget {
                           if (value.toInt() < data.length) {
                             return Text(
                               data[value.toInt()].date,
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 10, color: isDark ? AppColors.textSecondary : Colors.black54),
                             );
                           }
                           return const Text('');
@@ -83,7 +85,7 @@ class ProgressChart extends StatelessWidget {
                             radius: 4,
                             color: AppColors.primary,
                             strokeWidth: 2,
-                            strokeColor: AppColors.surface,
+                            strokeColor: isDark ? AppColors.surface : Colors.white,
                           );
                         },
                       ),
@@ -103,7 +105,7 @@ class ProgressChart extends StatelessWidget {
                 children: [
                   Text(
                     'Inicio: ${data.first.value}$unit',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54),
                   ),
                   Text(
                     'Actual: ${data.last.value}$unit',

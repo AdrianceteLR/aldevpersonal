@@ -1,42 +1,42 @@
 import 'package:aldevpersonal/presentation/theme/app_colors.dart';
 import 'package:aldevpersonal/widgets/category_progress_card.dart';
 import 'package:aldevpersonal/widgets/enhanced_bar_chart.dart';
-
 import 'package:aldevpersonal/widgets/expense_chart.dart';
 import 'package:aldevpersonal/widgets/filter_chips.dart';
 import 'package:flutter/material.dart';
-
-class FinancesView extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+class FinancesView extends ConsumerStatefulWidget {
   const FinancesView({super.key});
 
   @override
-  State<FinancesView> createState() => _FinancesViewState();
+  ConsumerState<FinancesView> createState() => _FinancesViewState();
 }
 
-class _FinancesViewState extends State<FinancesView> {
+class _FinancesViewState extends ConsumerState<FinancesView> {
   String selectedPeriod = 'Este mes';
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.background : Colors.grey[50],
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: _handleRefresh,
         color: AppColors.primary,
-        backgroundColor: AppColors.surface,
+        backgroundColor: isDark ? AppColors.surface : Colors.white,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(isDark),
               const SizedBox(height: 16),
               _buildPeriodFilter(),
               const SizedBox(height: 20),
-
-              _buildQuickActions(),
+              _buildQuickActions(isDark),
               const SizedBox(height: 20),
               EnhancedBarChart(
                 incomeData: _getMockBarIncomeData(),
@@ -45,9 +45,9 @@ class _FinancesViewState extends State<FinancesView> {
               const SizedBox(height: 20),
               ExpenseChart(data: _getMockChartData()),
               const SizedBox(height: 20),
-              _buildCategoryProgress(),
+              _buildCategoryProgress(isDark),
               const SizedBox(height: 20),
-              _buildRecentMovements(),
+              _buildRecentMovements(isDark),
             ],
           ),
         ),
@@ -61,20 +61,20 @@ class _FinancesViewState extends State<FinancesView> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Finanzas',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
             ),
             Text(
               'Resumen de $selectedPeriod',
-              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 16, color: isDark ? AppColors.textSecondary : Colors.black54),
             ),
           ],
         ),
@@ -82,11 +82,11 @@ class _FinancesViewState extends State<FinancesView> {
           children: [
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.search, color: AppColors.textPrimary),
+              icon: Icon(Icons.search, color: isDark ? AppColors.textPrimary : Colors.black87),
             ),
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+              icon: Icon(Icons.notifications_outlined, color: isDark ? AppColors.textPrimary : Colors.black87),
             ),
           ],
         ),
@@ -106,20 +106,18 @@ class _FinancesViewState extends State<FinancesView> {
     );
   }
 
-
-
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(bool isDark) {
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Acciones Rápidas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
             ),
             const SizedBox(height: 16),
             Row(
@@ -130,24 +128,28 @@ class _FinancesViewState extends State<FinancesView> {
                   label: 'Ingreso',
                   color: AppColors.success,
                   onTap: () => _showAddMovementDialog(context, isIncome: true),
+                  isDark: isDark,
                 ),
                 _buildActionButton(
                   icon: Icons.remove_circle,
                   label: 'Gasto',
                   color: AppColors.danger,
                   onTap: () => _showAddMovementDialog(context, isIncome: false),
+                  isDark: isDark,
                 ),
                 _buildActionButton(
                   icon: Icons.swap_horiz,
                   label: 'Transferir',
                   color: AppColors.accent,
                   onTap: () {},
+                  isDark: isDark,
                 ),
                 _buildActionButton(
                   icon: Icons.file_download,
                   label: 'Exportar',
                   color: AppColors.primary,
                   onTap: () => _showExportDialog(context),
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -162,6 +164,7 @@ class _FinancesViewState extends State<FinancesView> {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
     return InkWell(
       onTap: onTap,
@@ -181,10 +184,10 @@ class _FinancesViewState extends State<FinancesView> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: isDark ? AppColors.textSecondary : Colors.black54,
               ),
             ),
           ],
@@ -193,13 +196,13 @@ class _FinancesViewState extends State<FinancesView> {
     );
   }
 
-  Widget _buildCategoryProgress() {
+  Widget _buildCategoryProgress(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Progreso por Categoría',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
         ),
         const SizedBox(height: 12),
         CategoryProgressCard(
@@ -232,10 +235,10 @@ class _FinancesViewState extends State<FinancesView> {
     );
   }
 
-  Widget _buildRecentMovements() {
+  Widget _buildRecentMovements(bool isDark) {
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -244,9 +247,9 @@ class _FinancesViewState extends State<FinancesView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Movimientos Recientes',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
                 ),
                 TextButton(
                   onPressed: () {},
@@ -260,6 +263,7 @@ class _FinancesViewState extends State<FinancesView> {
               amount: ['+\$2,500.00', '-\$120.50', '-\$45.00'][index],
               category: ['Trabajo', 'Alimentación', 'Transporte'][index],
               isIncome: [true, false, false][index],
+              isDark: isDark,
             )),
           ],
         ),
@@ -272,6 +276,7 @@ class _FinancesViewState extends State<FinancesView> {
     required String amount,
     required String category,
     required bool isIncome,
+    required bool isDark,
   }) {
     return Dismissible(
       key: Key(title),
@@ -306,11 +311,11 @@ class _FinancesViewState extends State<FinancesView> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+                    style: TextStyle(fontWeight: FontWeight.w500, color: isDark ? AppColors.textPrimary : Colors.black87),
                   ),
                   Text(
                     category,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54),
                   ),
                 ],
               ),
@@ -333,14 +338,15 @@ class _FinancesViewState extends State<FinancesView> {
   }
 
   void _showExportDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Exportar Reporte', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
+        backgroundColor: isDark ? AppColors.surface : Colors.white,
+        title: Text('Exportar Reporte', style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87)),
+        content: Text(
           '¿En qué formato deseas exportar el reporte?',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
         ),
         actions: [
           TextButton(
@@ -357,10 +363,11 @@ class _FinancesViewState extends State<FinancesView> {
   }
 
   void _showAddMovementDialog(BuildContext context, {bool? isIncome}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: isDark ? AppColors.surface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -373,9 +380,9 @@ class _FinancesViewState extends State<FinancesView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Nuevo Movimiento',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
               ),
               const SizedBox(height: 20),
               if (isIncome == null) ...[
@@ -408,14 +415,14 @@ class _FinancesViewState extends State<FinancesView> {
                 ),
               ] else ...[
                 TextField(
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Monto',
-                    labelStyle: const TextStyle(color: AppColors.textSecondary),
+                    labelStyle: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
                     prefixText: '\$',
-                    prefixStyle: const TextStyle(color: AppColors.textPrimary),
+                    prefixStyle: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.textSecondary),
+                      borderSide: BorderSide(color: isDark ? AppColors.textSecondary : Colors.black54),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -423,12 +430,12 @@ class _FinancesViewState extends State<FinancesView> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Descripción',
-                    labelStyle: const TextStyle(color: AppColors.textSecondary),
+                    labelStyle: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54),
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.textSecondary),
+                      borderSide: BorderSide(color: isDark ? AppColors.textSecondary : Colors.black54),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),

@@ -21,9 +21,11 @@ class TrainingSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -58,9 +60,9 @@ class TrainingSummaryCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: isDark ? AppColors.textSecondary : Colors.black54,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -76,9 +78,9 @@ class TrainingSummaryCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: isDark ? AppColors.textSecondary : Colors.black54,
                 ),
               ),
             ],

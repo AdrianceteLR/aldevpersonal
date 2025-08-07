@@ -20,6 +20,8 @@ class FilterChips extends StatefulWidget {
 class _FilterChipsState extends State<FilterChips> {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return SizedBox(
       height: 40,
       child: ListView.builder(
@@ -35,17 +37,17 @@ class _FilterChipsState extends State<FilterChips> {
               label: Text(
                 option,
                 style: TextStyle(
-                  color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                  color: isSelected ? AppColors.textPrimary : (isDark ? AppColors.textSecondary : Colors.black54),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
               selected: isSelected,
               onSelected: (_) => widget.onSelected(option),
-              backgroundColor: AppColors.surface,
+              backgroundColor: isDark ? AppColors.surface : Colors.white,
               selectedColor: AppColors.primary,
               checkmarkColor: AppColors.textPrimary,
               side: BorderSide(
-                color: isSelected ? AppColors.primary : AppColors.textSecondary.withOpacity(0.3),
+                color: isSelected ? AppColors.primary : (isDark ? AppColors.textSecondary : Colors.black54).withOpacity(0.3),
               ),
             ),
           );

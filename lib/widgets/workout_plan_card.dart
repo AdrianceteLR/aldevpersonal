@@ -20,9 +20,11 @@ class WorkoutPlanCard extends StatelessWidget {
     final totalExercises = workout.exercises.length;
     final progress = totalExercises > 0 ? completedExercises / totalExercises : 0.0;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -37,10 +39,10 @@ class WorkoutPlanCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       workout.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: isDark ? AppColors.textPrimary : Colors.black87,
                       ),
                     ),
                   ),
@@ -68,7 +70,7 @@ class WorkoutPlanCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     '$completedExercises/$totalExercises ejercicios',
-                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 14, color: isDark ? AppColors.textSecondary : Colors.black54),
                   ),
                 ],
               ),
@@ -89,7 +91,7 @@ class WorkoutPlanCard extends StatelessWidget {
               if (workout.exercises.length > 3)
                 Text(
                   '+${workout.exercises.length - 3} más...',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54),
                 ),
             ],
           ),
@@ -99,28 +101,33 @@ class WorkoutPlanCard extends StatelessWidget {
   }
 
   Widget _buildExerciseItem(PlannedExercise exercise) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
-            size: 16,
-            color: exercise.completed ? AppColors.success : AppColors.textSecondary,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${exercise.name} - ${exercise.targetSets}x${exercise.targetReps} @ ${exercise.targetWeight}kg',
-              style: TextStyle(
-                fontSize: 12,
-                color: exercise.completed ? AppColors.textSecondary : AppColors.textPrimary,
-                decoration: exercise.completed ? TextDecoration.lineThrough : null,
+    return Builder(
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Icon(
+                exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
+                size: 16,
+                color: exercise.completed ? AppColors.success : (isDark ? AppColors.textSecondary : Colors.black54),
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${exercise.name} - ${exercise.targetSets}x${exercise.targetReps} @ ${exercise.targetWeight}kg',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: exercise.completed ? (isDark ? AppColors.textSecondary : Colors.black54) : (isDark ? AppColors.textPrimary : Colors.black87),
+                    decoration: exercise.completed ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

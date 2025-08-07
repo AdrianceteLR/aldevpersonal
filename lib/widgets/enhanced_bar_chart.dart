@@ -14,9 +14,11 @@ class EnhancedBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -25,12 +27,12 @@ class EnhancedBarChart extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Ingresos vs Gastos',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: isDark ? AppColors.textPrimary : Colors.black87,
                   ),
                 ),
                 Container(
@@ -59,12 +61,12 @@ class EnhancedBarChart extends StatelessWidget {
                   maxY: _getMaxValue(),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => AppColors.surface,
+                      getTooltipColor: (_) => isDark ? AppColors.surface : Colors.white,
                       tooltipRoundedRadius: 8,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
                           '\$${rod.toY.toInt()}',
-                          const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                          TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -81,7 +83,7 @@ class EnhancedBarChart extends StatelessWidget {
                           if (value.toInt() < months.length) {
                             return Text(
                               months[value.toInt()],
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54),
                             );
                           }
                           return const Text('');
@@ -99,9 +101,9 @@ class EnhancedBarChart extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegendItem('Ingresos', AppColors.success),
+                _buildLegendItem('Ingresos', AppColors.success, isDark),
                 const SizedBox(width: 24),
-                _buildLegendItem('Gastos', AppColors.danger),
+                _buildLegendItem('Gastos', AppColors.danger, isDark),
               ],
             ),
           ],
@@ -147,7 +149,7 @@ class EnhancedBarChart extends StatelessWidget {
     return allValues.reduce((a, b) => a > b ? a : b) * 1.2;
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(String label, Color color, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -160,7 +162,7 @@ class EnhancedBarChart extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54)),
       ],
     );
   }

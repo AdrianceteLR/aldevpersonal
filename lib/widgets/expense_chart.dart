@@ -9,17 +9,19 @@ class ExpenseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Gastos por Categoría',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? AppColors.textPrimary : Colors.black87),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -57,7 +59,7 @@ class ExpenseChart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Text(item.label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  Text(item.label, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondary : Colors.black54)),
                 ],
               )).toList(),
             ),

@@ -21,9 +21,11 @@ class CategoryProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 2,
-      color: AppColors.surface,
+      color: isDark ? AppColors.surface : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -46,17 +48,17 @@ class CategoryProgressCard extends StatelessWidget {
                     children: [
                       Text(
                         category,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: isDark ? AppColors.textPrimary : Colors.black87,
                         ),
                       ),
                       Text(
                         '$spent de $budget',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: isDark ? AppColors.textSecondary : Colors.black54,
                         ),
                       ),
                     ],
@@ -67,7 +69,7 @@ class CategoryProgressCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: progress > 0.8 ? AppColors.danger : AppColors.textPrimary,
+                    color: progress > 0.8 ? AppColors.danger : (isDark ? AppColors.textPrimary : Colors.black87),
                   ),
                 ),
               ],
