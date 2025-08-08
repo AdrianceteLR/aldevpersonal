@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../domain/providers/auth_provider.dart';
 import '../../../theme/app_colors.dart';
 
 class MoreDialogs {
@@ -137,7 +139,7 @@ class MoreDialogs {
     );
   }
 
-  static void showLogoutDialog(BuildContext context) {
+  static void showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -149,9 +151,9 @@ class MoreDialogs {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              // Aquí iría la lógica de logout
+              await ref.read(authNotifierProvider.notifier).signOut();
             },
             child: Text('Cerrar sesión', style: TextStyle(color: AppColors.danger)),
           ),

@@ -1,3 +1,4 @@
+import 'package:aldevpersonal/domain/models/user/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../domain/providers/theme_provider.dart';
@@ -13,7 +14,7 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(themeProvider);
-    final user = ref.watch(userProvider);
+    final userAsync = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.background : Colors.grey[50],
@@ -51,13 +52,21 @@ class SettingsPage extends ConsumerWidget {
                 SettingsTile(
                   icon: Icons.notifications,
                   title: 'Notificaciones push',
-                  subtitle: user?.notificationsEnabled == true ? 'Activadas' : 'Desactivadas',
-                  trailing: Switch(
-                    value: user?.notificationsEnabled ?? false,
-                    onChanged: (value) => ref.read(userProvider.notifier).toggleNotifications(),
-                    activeColor: AppColors.primary,
+                  subtitle: userAsync.when(
+                    data: (user) => user?.notificationsEnabled == true ? 'Activadas' : 'Desactivadas',
+                    loading: () => 'Cargando...',
+                    error: (_, __) => 'Error',
                   ),
-                  onTap: () => ref.read(userProvider.notifier).toggleNotifications(),
+                  trailing: userAsync.when(
+                    data: (user) => Switch(
+                      value: user?.notificationsEnabled ?? false,
+                      onChanged: (value) => _toggleNotifications(ref, user),
+                      activeColor: AppColors.primary,
+                    ),
+                    loading: () => const CircularProgressIndicator(),
+                    error: (_, __) => const Icon(Icons.error),
+                  ),
+                  onTap: () => userAsync.whenData((user) => _toggleNotifications(ref, user)),
                 ),
                 SettingsTile(
                   icon: Icons.schedule,
@@ -75,7 +84,11 @@ class SettingsPage extends ConsumerWidget {
                 SettingsTile(
                   icon: Icons.language,
                   title: 'Idioma',
-                  subtitle: _getLanguageName(user?.language ?? 'es'),
+                  subtitle: userAsync.when(
+                    data: (user) => _getLanguageName(user?.language ?? 'es'),
+                    loading: () => 'Cargando...',
+                    error: (_, __) => 'Español',
+                  ),
                   onTap: () => _showLanguageSelector(context, ref),
                 ),
                 SettingsTile(
@@ -195,24 +208,46 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildLanguageOption(String code, String name, BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
-    return ListTile(
-      title: Text(name),
-      leading: Radio<String>(
-        value: code,
-        groupValue: user?.language ?? 'es',
-        onChanged: (value) {
-          if (value != null) {
-            ref.read(userProvider.notifier).updateLanguage(value);
-            Navigator.pop(context);
-          }
+    final userAsync = ref.watch(userProvider);
+    return userAsync.when(
+      data: (user) => ListTile(
+        title: Text(name),
+        leading: Radio<String>(
+          value: code,
+          groupValue: user?.language ?? 'es',
+          onChanged: (value) {
+            if (value != null) {
+              _updateLanguage(ref, value);
+              Navigator.pop(context);
+            }
+          },
+        ),
+        onTap: () {
+          _updateLanguage(ref, code);
+          Navigator.pop(context);
         },
       ),
-      onTap: () {
-        ref.read(userProvider.notifier).updateLanguage(code);
-        Navigator.pop(context);
-      },
+      loading: () => const ListTile(
+        title: Text('Cargando...'),
+        leading: CircularProgressIndicator(),
+      ),
+      error: (_, __) => ListTile(
+        title: Text(name),
+        leading: Radio<String>(
+          value: code,
+          groupValue: 'es',
+          onChanged: null,
+        ),
+      ),
     );
+  }
+
+  void _toggleNotifications(WidgetRef ref, UserModel? user) {
+    // Implementar toggle de notificaciones
+  }
+
+  void _updateLanguage(WidgetRef ref, String language) {
+    // Implementar actualización de idioma
   }
 
   void _showTimeRangePicker(BuildContext context) {

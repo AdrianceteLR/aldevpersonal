@@ -20,7 +20,7 @@ class MoreView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(themeProvider);
-    final user = ref.watch(userProvider);
+    final userAsync = ref.watch(userProvider);
     
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.background : Colors.grey[50],
@@ -31,12 +31,23 @@ class MoreView extends ConsumerWidget {
           children: [
             MoreHeader(isDarkMode: isDarkMode),
             const SizedBox(height: 20),
-            ProfileHeader(
-              name: user?.name ?? 'Usuario',
-              email: user?.email ?? 'usuario@ejemplo.com',
-              onEditTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+            userAsync.when(
+              data: (user) => ProfileHeader(
+                name: user?.name ?? 'Usuario',
+                email: user?.email ?? 'usuario@ejemplo.com',
+                onEditTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                ),
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => ProfileHeader(
+                name: 'Usuario',
+                email: 'usuario@ejemplo.com',
+                onEditTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -115,7 +126,7 @@ class MoreView extends ConsumerWidget {
                   icon: Icons.logout,
                   title: 'Cerrar sesión',
                   iconColor: AppColors.danger,
-                  onTap: () => MoreDialogs.showLogoutDialog(context),
+                  onTap: () => MoreDialogs.showLogoutDialog(context, ref),
                 ),
               ],
             ),

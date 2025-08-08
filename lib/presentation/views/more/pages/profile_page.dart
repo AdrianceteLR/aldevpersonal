@@ -9,7 +9,7 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
+    final userAsync = ref.watch(userProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -20,18 +20,41 @@ class ProfilePage extends ConsumerWidget {
         foregroundColor: isDark ? AppColors.textPrimary : Colors.black87,
         elevation: 1,
       ),
-      body: user == null
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildAvatarSection(context, user.name, isDark),
-                  const SizedBox(height: 24),
-                  ProfileForm(user: user),
-                ],
-              ),
+      body: userAsync.when(
+        data: (user) {
+          if (user == null) {
+            return const Center(
+              child: Text('No se pudo cargar el perfil'),
+            );
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildAvatarSection(context, user.name, isDark),
+                const SizedBox(height: 24),
+                ProfileForm(user: user),
+              ],
             ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.refresh(userProvider),
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

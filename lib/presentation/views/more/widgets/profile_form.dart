@@ -130,22 +130,35 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     );
   }
 
-  void _saveProfile() {
+  void _saveProfile() async {
     if (_formKey.currentState?.validate() == true) {
-      final updatedUser = widget.user.copyWith(
-        name: _nameController.text,
-        email: _emailController.text,
-        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
-      );
-      
-      ref.read(userProvider.notifier).updateUser(updatedUser);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Perfil actualizado correctamente'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      try {
+        final updatedUser = widget.user.copyWith(
+          name: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text.isEmpty ? null : _phoneController.text,
+        );
+        
+        await ref.read(userUpdateProvider).updateUser(updatedUser);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Perfil actualizado correctamente'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+      }
     }
   }
 
