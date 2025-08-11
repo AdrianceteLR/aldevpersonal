@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../../domain/models/finance/finance_movement_model.dart';
 import '../../../theme/app_colors.dart';
+import '../all_movements_view.dart';
 
 class RecentMovementsSection extends StatelessWidget {
   final bool isDark;
+  final List<FinanceMovement> movements;
+  final Function(FinanceMovement) onEdit;
+  final Function(String) onDelete;
 
   const RecentMovementsSection({
     super.key,
     required this.isDark,
+    required this.movements,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -31,7 +39,12 @@ class RecentMovementsSection extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AllMovementsView(),
+                    ),
+                  ),
                   child: const Text(
                     'Ver todos',
                     style: TextStyle(color: AppColors.primary),
@@ -40,26 +53,41 @@ class RecentMovementsSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            ...List.generate(3, (index) => _buildMovementItem(
-              title: ['Salario', 'Supermercado', 'Gasolina'][index],
-              amount: ['+\$2,500.00', '-\$120.50', '-\$45.00'][index],
-              category: ['Trabajo', 'Alimentación', 'Transporte'][index],
-              isIncome: [true, false, false][index],
-            )),
+            if (movements.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.receipt_long,
+                        size: 48,
+                        color: isDark ? AppColors.textSecondary : Colors.black54,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No hay movimientos',
+                        style: TextStyle(
+                          color: isDark ? AppColors.textSecondary : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ...movements.map((movement) => _buildMovementItem(movement)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMovementItem({
-    required String title,
-    required String amount,
-    required String category,
-    required bool isIncome,
-  }) {
+  Widget _buildMovementItem(FinanceMovement movement) {
+    final isIncome = movement.type == MovementType.income;
+    
     return Dismissible(
-      key: Key(title),
+      key: Key(movement.id),
       background: Container(
         color: AppColors.danger,
         alignment: Alignment.centerRight,
@@ -67,7 +95,7 @@ class RecentMovementsSection extends StatelessWidget {
         child: const Icon(Icons.delete, color: AppColors.textPrimary),
       ),
       direction: DismissDirection.endToStart,
-      onDismissed: (direction) {},
+      onDismissed: (direction) => onDelete(movement.id),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
@@ -80,7 +108,7 @@ class RecentMovementsSection extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                _getCategoryIcon(movement.category),
                 color: isIncome ? AppColors.success : AppColors.danger,
                 size: 16,
               ),
@@ -91,14 +119,14 @@ class RecentMovementsSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    movement.title,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: isDark ? AppColors.textPrimary : Colors.black87,
                     ),
                   ),
                   Text(
-                    category,
+                    movement.category.displayName,
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? AppColors.textSecondary : Colors.black54,
@@ -107,16 +135,61 @@ class RecentMovementsSection extends StatelessWidget {
                 ],
               ),
             ),
-            Text(
-              amount,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isIncome ? AppColors.success : AppColors.danger,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${isIncome ? '+' : '-'}${movement.amount.toStringAsFixed(0)}€',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isIncome ? AppColors.success : AppColors.danger,
+                  ),
+                ),
+                Text(
+                  _formatDate(movement.date),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSecondary : Colors.black54,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  IconData _getCategoryIcon(MovementCategory category) {
+    switch (category) {
+      case MovementCategory.salary:
+        return Icons.work;
+      case MovementCategory.food:
+        return Icons.restaurant;
+      case MovementCategory.transport:
+        return Icons.directions_car;
+      case MovementCategory.entertainment:
+        return Icons.movie;
+      case MovementCategory.shopping:
+        return Icons.shopping_cart;
+      case MovementCategory.bills:
+        return Icons.receipt;
+      case MovementCategory.rent:
+        return Icons.home;
+      case MovementCategory.health:
+        return Icons.local_hospital;
+      default:
+        return Icons.account_balance_wallet;
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date).inDays;
+    
+    if (diff == 0) return 'Hoy';
+    if (diff == 1) return 'Ayer';
+    if (diff < 7) return '$diff días';
+    return '${date.day}/${date.month}';
   }
 }

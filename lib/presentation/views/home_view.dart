@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/enhanced_summary_card.dart';
 import '../../widgets/training_summary_card.dart';
 import '../../widgets/device_status_widget.dart';
+import '../../domain/providers/finance_provider.dart';
 import '../theme/app_colors.dart';
 
 class HomeView extends ConsumerWidget {
@@ -58,58 +59,106 @@ class HomeView extends ConsumerWidget {
   }
 
   Widget _buildFinanceSummary(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Finanzas',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimary : Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
+    return Consumer(
+      builder: (context, ref, child) {
+        final summaryAsync = ref.watch(financeSummaryProvider);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: EnhancedSummaryCard(
-                title: 'Balance',
-                amount: '\$2,450',
-                percentage: '+12.5%',
-                icon: Icons.account_balance_wallet,
-                color: AppColors.primary,
-                sparklineData: const [2100, 2200, 2300, 2250, 2400, 2450],
-                onTap: () {},
+            Text(
+              'Finanzas',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.textPrimary : Colors.black87,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: EnhancedSummaryCard(
-                title: 'Ingresos',
-                amount: '\$3,200',
-                percentage: '+8.2%',
-                icon: Icons.trending_up,
-                color: AppColors.success,
-                sparklineData: const [2800, 2900, 3100, 3000, 3150, 3200],
-                onTap: () {},
+            const SizedBox(height: 12),
+            summaryAsync.when(
+              data: (summary) => Row(
+                children: [
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Balance',
+                      amount: '${summary['balance']?.toStringAsFixed(0) ?? '0'}€',
+                      percentage: '+12.5%',
+                      icon: Icons.account_balance_wallet,
+                      color: AppColors.primary,
+                      sparklineData: const [2100, 2200, 2300, 2250, 2400, 2450],
+                      onTap: () {},
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Ingresos',
+                      amount: '${summary['income']?.toStringAsFixed(0) ?? '0'}€',
+                      percentage: '+8.2%',
+                      icon: Icons.trending_up,
+                      color: AppColors.success,
+                      sparklineData: const [2800, 2900, 3100, 3000, 3150, 3200],
+                      onTap: () {},
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Gastos',
+                      amount: '${summary['expense']?.toStringAsFixed(0) ?? '0'}€',
+                      percentage: '-5.1%',
+                      icon: Icons.trending_down,
+                      color: AppColors.danger,
+                      sparklineData: const [800, 780, 790, 760, 740, 750],
+                      onTap: () {},
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: EnhancedSummaryCard(
-                title: 'Gastos',
-                amount: '\$750',
-                percentage: '-5.1%',
-                icon: Icons.trending_down,
-                color: AppColors.danger,
-                sparklineData: const [800, 780, 790, 760, 740, 750],
-                onTap: () {},
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => Row(
+                children: [
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Balance',
+                      amount: '0€',
+                      percentage: '+0%',
+                      icon: Icons.account_balance_wallet,
+                      color: AppColors.primary,
+                      sparklineData: const [0, 0, 0, 0, 0, 0],
+                      onTap: () {},
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Ingresos',
+                      amount: '0€',
+                      percentage: '+0%',
+                      icon: Icons.trending_up,
+                      color: AppColors.success,
+                      sparklineData: const [0, 0, 0, 0, 0, 0],
+                      onTap: () {},
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EnhancedSummaryCard(
+                      title: 'Gastos',
+                      amount: '0€',
+                      percentage: '+0%',
+                      icon: Icons.trending_down,
+                      color: AppColors.danger,
+                      sparklineData: const [0, 0, 0, 0, 0, 0],
+                      onTap: () {},
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
