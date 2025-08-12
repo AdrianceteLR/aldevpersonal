@@ -8,8 +8,8 @@ class TrainingController {
 
   TrainingController(this.ref);
 
-  void toggleExercise(String workoutId, String exerciseName) {
-    ref.read(trainingProvider.notifier).toggleExerciseCompletion(workoutId, exerciseName);
+  void toggleExercise(String workoutId, String exerciseId) {
+    ref.read(trainingProvider.notifier).toggleExerciseCompletion(workoutId, exerciseId);
   }
 
   void addWorkout(WorkoutPlan workout) {

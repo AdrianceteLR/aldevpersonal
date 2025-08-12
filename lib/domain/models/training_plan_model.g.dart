@@ -14,7 +14,7 @@ _$TrainingPlanImpl _$$TrainingPlanImplFromJson(Map<String, dynamic> json) =>
           .map((e) => WeeklyWorkout.fromJson(e as Map<String, dynamic>))
           .toList(),
       startDate: DateTime.parse(json['startDate'] as String),
-      weeksToRepeat: json['weeksToRepeat'] as int,
+      weeksToRepeat: (json['weeksToRepeat'] as num).toInt(),
       isActive: json['isActive'] as bool,
     );
 
@@ -32,7 +32,7 @@ _$WeeklyWorkoutImpl _$$WeeklyWorkoutImplFromJson(Map<String, dynamic> json) =>
     _$WeeklyWorkoutImpl(
       id: json['id'] as String,
       name: json['name'] as String,
-      dayOfWeek: json['dayOfWeek'] as int,
+      dayOfWeek: (json['dayOfWeek'] as num).toInt(),
       exercises: (json['exercises'] as List<dynamic>)
           .map((e) => PlannedExercise.fromJson(e as Map<String, dynamic>))
           .toList(),

@@ -125,6 +125,7 @@ extension WorkoutPlanFirestore on WorkoutPlan {
 @freezed
 class PlannedExercise with _$PlannedExercise {
   const factory PlannedExercise({
+    required String id,
     required String name,
     required int targetSets,
     required int targetReps,
@@ -142,6 +143,7 @@ class PlannedExercise with _$PlannedExercise {
 extension PlannedExerciseFirestore on PlannedExercise {
   Map<String, dynamic> toFirestore() {
     return {
+      'id': id,
       'name': name,
       'targetSets': targetSets,
       'targetReps': targetReps,
@@ -155,6 +157,7 @@ extension PlannedExerciseFirestore on PlannedExercise {
 
   static PlannedExercise fromFirestore(Map<String, dynamic> json) {
     return PlannedExercise(
+      id: json['id'] as String,
       name: json['name'] as String,
       targetSets: json['targetSets'] as int,
       targetReps: json['targetReps'] as int,

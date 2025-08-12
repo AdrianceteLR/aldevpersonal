@@ -73,6 +73,7 @@ Map<String, dynamic> _$$WorkoutPlanImplToJson(_$WorkoutPlanImpl instance) =>
 _$PlannedExerciseImpl _$$PlannedExerciseImplFromJson(
   Map<String, dynamic> json,
 ) => _$PlannedExerciseImpl(
+  id: json['id'] as String,
   name: json['name'] as String,
   targetSets: (json['targetSets'] as num).toInt(),
   targetReps: (json['targetReps'] as num).toInt(),
@@ -86,6 +87,7 @@ _$PlannedExerciseImpl _$$PlannedExerciseImplFromJson(
 Map<String, dynamic> _$$PlannedExerciseImplToJson(
   _$PlannedExerciseImpl instance,
 ) => <String, dynamic>{
+  'id': instance.id,
   'name': instance.name,
   'targetSets': instance.targetSets,
   'targetReps': instance.targetReps,

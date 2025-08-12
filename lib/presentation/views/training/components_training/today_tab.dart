@@ -133,10 +133,11 @@ class TodayTab extends ConsumerWidget {
             ...todayWorkouts.map((workout) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: WorkoutPlanCard(
-                workout: workout,
-                onTap: () => onWorkoutTap(context, workout),
-                onExerciseToggle: (exerciseName, completed) {
-                  // This will be handled by the controller in the parent
+                workoutId: workout.id,
+                onTap: () => _showWorkoutModal(context, workout, ref),
+                onExerciseToggle: (exerciseId, completed) {
+                  final controller = TrainingController(ref);
+                  controller.toggleExercise(workout.id, exerciseId);
                 },
               ),
             )),
@@ -298,5 +299,70 @@ class TodayTab extends ConsumerWidget {
   void _showWeightDialog(BuildContext context, WidgetRef ref) {
     final controller = TrainingController(ref);
     TrainingDialogs.showWeightDialog(context, controller);
+  }
+
+  void _showWorkoutModal(BuildContext context, WorkoutPlan workout, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final currentWorkout = ref.watch(trainingProvider).workoutPlans.firstWhere((w) => w.id == workout.id);
+          return DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (context, scrollController) => Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        Text(
+                          currentWorkout.name,
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        ...currentWorkout.exercises.map((exercise) => Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: Icon(
+                              exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
+                              color: exercise.completed ? AppColors.success : null,
+                            ),
+                            title: Text(exercise.name),
+                            subtitle: Text('${exercise.targetSets}x${exercise.targetReps} @ ${exercise.targetWeight}kg'),
+                            onTap: () {
+                              final controller = TrainingController(ref);
+                              controller.toggleExercise(currentWorkout.id, exercise.id);
+                            },
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

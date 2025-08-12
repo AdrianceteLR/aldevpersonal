@@ -62,12 +62,16 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
     }
   }
 
-  void toggleExerciseCompletion(String workoutId, String exerciseName) async {
+  void toggleExerciseCompletion(String workoutId, String exerciseId) async {
+    print('Toggling exercise: $exerciseId in workout: $workoutId');
+    
     final updatedWorkouts = state.workoutPlans.map((workout) {
       if (workout.id == workoutId) {
         final updatedExercises = workout.exercises.map((exercise) {
-          if (exercise.name == exerciseName) {
-            return exercise.copyWith(completed: !exercise.completed);
+          if (exercise.id == exerciseId) {
+            final newCompleted = !exercise.completed;
+            print('Exercise ${exercise.name} changed from ${exercise.completed} to $newCompleted');
+            return exercise.copyWith(completed: newCompleted);
           }
           return exercise;
         }).toList();
@@ -82,10 +86,15 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
     }).toList();
 
     state = state.copyWith(workoutPlans: updatedWorkouts);
+    print('State updated with ${updatedWorkouts.length} workouts');
     
     // Update in service
-    final updatedWorkout = updatedWorkouts.firstWhere((w) => w.id == workoutId);
-    await _trainingService.updateWorkoutPlan(updatedWorkout);
+    try {
+      final updatedWorkout = updatedWorkouts.firstWhere((w) => w.id == workoutId);
+      await _trainingService.updateWorkoutPlan(updatedWorkout);
+    } catch (e) {
+      print('Error updating workout in service: $e');
+    }
   }
 
   void addWorkoutPlan(WorkoutPlan workout) async {

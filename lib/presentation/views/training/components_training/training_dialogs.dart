@@ -60,7 +60,7 @@ class TrainingDialogs {
                                 Checkbox(
                                   value: exercise.completed,
                                   onChanged: (value) {
-                                    controller.toggleExercise(workout.id, exercise.name);
+                                    controller.toggleExercise(workout.id, exercise.id);
                                     Navigator.pop(context);
                                     showWorkoutDetails(context, workout, controller);
                                   },
@@ -838,6 +838,7 @@ class _QuickExerciseDialogState extends State<_QuickExerciseDialog> {
   void _save() {
     if (_nameController.text.isNotEmpty) {
       widget.onSave(PlannedExercise(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
         targetSets: _sets,
         targetReps: _reps,

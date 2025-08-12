@@ -863,6 +863,7 @@ PlannedExercise _$PlannedExerciseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PlannedExercise {
+  String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get targetSets => throw _privateConstructorUsedError;
   int get targetReps => throw _privateConstructorUsedError;
@@ -890,6 +891,7 @@ abstract class $PlannedExerciseCopyWith<$Res> {
   ) = _$PlannedExerciseCopyWithImpl<$Res, PlannedExercise>;
   @useResult
   $Res call({
+    String id,
     String name,
     int targetSets,
     int targetReps,
@@ -916,6 +918,7 @@ class _$PlannedExerciseCopyWithImpl<$Res, $Val extends PlannedExercise>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? targetSets = null,
     Object? targetReps = null,
@@ -927,6 +930,10 @@ class _$PlannedExerciseCopyWithImpl<$Res, $Val extends PlannedExercise>
   }) {
     return _then(
       _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
             name: null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
@@ -975,6 +982,7 @@ abstract class _$$PlannedExerciseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
+    String id,
     String name,
     int targetSets,
     int targetReps,
@@ -1000,6 +1008,7 @@ class __$$PlannedExerciseImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? targetSets = null,
     Object? targetReps = null,
@@ -1011,6 +1020,10 @@ class __$$PlannedExerciseImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PlannedExerciseImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
         name: null == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
@@ -1052,6 +1065,7 @@ class __$$PlannedExerciseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PlannedExerciseImpl implements _PlannedExercise {
   const _$PlannedExerciseImpl({
+    required this.id,
     required this.name,
     required this.targetSets,
     required this.targetReps,
@@ -1065,6 +1079,8 @@ class _$PlannedExerciseImpl implements _PlannedExercise {
   factory _$PlannedExerciseImpl.fromJson(Map<String, dynamic> json) =>
       _$$PlannedExerciseImplFromJson(json);
 
+  @override
+  final String id;
   @override
   final String name;
   @override
@@ -1084,7 +1100,7 @@ class _$PlannedExerciseImpl implements _PlannedExercise {
 
   @override
   String toString() {
-    return 'PlannedExercise(name: $name, targetSets: $targetSets, targetReps: $targetReps, targetWeight: $targetWeight, actualSets: $actualSets, actualReps: $actualReps, actualWeight: $actualWeight, completed: $completed)';
+    return 'PlannedExercise(id: $id, name: $name, targetSets: $targetSets, targetReps: $targetReps, targetWeight: $targetWeight, actualSets: $actualSets, actualReps: $actualReps, actualWeight: $actualWeight, completed: $completed)';
   }
 
   @override
@@ -1092,6 +1108,7 @@ class _$PlannedExerciseImpl implements _PlannedExercise {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PlannedExerciseImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.targetSets, targetSets) ||
                 other.targetSets == targetSets) &&
@@ -1113,6 +1130,7 @@ class _$PlannedExerciseImpl implements _PlannedExercise {
   @override
   int get hashCode => Object.hash(
     runtimeType,
+    id,
     name,
     targetSets,
     targetReps,
@@ -1142,6 +1160,7 @@ class _$PlannedExerciseImpl implements _PlannedExercise {
 
 abstract class _PlannedExercise implements PlannedExercise {
   const factory _PlannedExercise({
+    required final String id,
     required final String name,
     required final int targetSets,
     required final int targetReps,
@@ -1155,6 +1174,8 @@ abstract class _PlannedExercise implements PlannedExercise {
   factory _PlannedExercise.fromJson(Map<String, dynamic> json) =
       _$PlannedExerciseImpl.fromJson;
 
+  @override
+  String get id;
   @override
   String get name;
   @override

@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/theme/app_colors.dart';
 import '../domain/models/training_entry_model.dart';
+import '../domain/providers/training_provider.dart';
 
-class WorkoutPlanCard extends StatelessWidget {
-  final WorkoutPlan workout;
+class WorkoutPlanCard extends ConsumerWidget {
+  final String workoutId;
   final VoidCallback? onTap;
-  final Function(String exerciseName, bool completed)? onExerciseToggle;
+  final Function(String exerciseId, bool completed)? onExerciseToggle;
 
   const WorkoutPlanCard({
     super.key,
-    required this.workout,
+    required this.workoutId,
     this.onTap,
     this.onExerciseToggle,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trainingState = ref.watch(trainingProvider);
+    final workout = trainingState.workoutPlans.firstWhere(
+      (w) => w.id == workoutId,
+    );
     final completedExercises = workout.exercises.where((e) => e.completed).length;
     final totalExercises = workout.exercises.length;
     final progress = totalExercises > 0 ? completedExercises / totalExercises : 0.0;
@@ -110,7 +116,7 @@ class WorkoutPlanCard extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: onExerciseToggle != null 
-                    ? () => onExerciseToggle!(exercise.name, !exercise.completed)
+                    ? () => onExerciseToggle!(exercise.id, !exercise.completed)
                     : null,
                 child: Icon(
                   exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
