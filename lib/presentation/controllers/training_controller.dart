@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/models/training_entry_model.dart';
 import '../../domain/models/training_plan_model.dart';
 import '../../domain/providers/training_provider.dart';
 
-class TrainingController {
-  final WidgetRef ref;
+part 'training_controller.g.dart';
 
-  TrainingController(this.ref);
+@riverpod
+class TrainingController extends _$TrainingController {
+  @override
+  void build() {}
 
   void toggleExercise(String workoutId, String exerciseId) {
     ref.read(trainingProvider.notifier).toggleExerciseCompletion(workoutId, exerciseId);

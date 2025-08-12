@@ -136,7 +136,7 @@ class TodayTab extends ConsumerWidget {
                 workoutId: workout.id,
                 onTap: () => _showWorkoutModal(context, workout, ref),
                 onExerciseToggle: (exerciseId, completed) {
-                  final controller = TrainingController(ref);
+                  final controller = ref.read(trainingControllerProvider.notifier);
                   controller.toggleExercise(workout.id, exerciseId);
                 },
               ),
@@ -292,12 +292,12 @@ class TodayTab extends ConsumerWidget {
   }
 
   void _showSleepDialog(BuildContext context, WidgetRef ref) {
-    final controller = TrainingController(ref);
+    final controller = ref.read(trainingControllerProvider.notifier);
     TrainingDialogs.showSleepDialog(context, controller);
   }
 
   void _showWeightDialog(BuildContext context, WidgetRef ref) {
-    final controller = TrainingController(ref);
+    final controller = ref.read(trainingControllerProvider.notifier);
     TrainingDialogs.showWeightDialog(context, controller);
   }
 
@@ -349,7 +349,7 @@ class TodayTab extends ConsumerWidget {
                             title: Text(exercise.name),
                             subtitle: Text('${exercise.targetSets}x${exercise.targetReps} @ ${exercise.targetWeight}kg'),
                             onTap: () {
-                              final controller = TrainingController(ref);
+                              final controller = ref.read(trainingControllerProvider.notifier);
                               controller.toggleExercise(currentWorkout.id, exercise.id);
                             },
                           ),

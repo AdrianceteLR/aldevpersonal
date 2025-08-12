@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../widgets/profile_header.dart';
 import '../../../widgets/settings_tile.dart';
+import '../../controllers/more_controller.dart';
 import '../../theme/app_colors.dart';
-import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/user_provider.dart';
 import 'pages/profile_page.dart';
 import 'pages/settings_page.dart';
@@ -19,7 +19,8 @@ class MoreView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDarkMode = ref.watch(themeProvider);
+    final controller = ref.watch(moreControllerProvider.notifier);
+    final isDarkMode = ref.watch(moreControllerProvider);
     final userAsync = ref.watch(userProvider);
     
     return Scaffold(
@@ -63,10 +64,10 @@ class MoreView extends ConsumerWidget {
                   subtitle: isDarkMode ? 'Modo oscuro' : 'Modo claro',
                   trailing: Switch(
                     value: isDarkMode,
-                    onChanged: (value) => ref.read(themeProvider.notifier).toggleTheme(),
+                    onChanged: (value) => controller.toggleTheme(),
                     activeColor: AppColors.primary,
                   ),
-                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(),
+                  onTap: controller.toggleTheme,
                 ),
                 SettingsTile(
                   icon: Icons.settings,
@@ -126,7 +127,7 @@ class MoreView extends ConsumerWidget {
                   icon: Icons.logout,
                   title: 'Cerrar sesión',
                   iconColor: AppColors.danger,
-                  onTap: () => MoreDialogs.showLogoutDialog(context, ref),
+                  onTap: () => controller.showLogoutDialog(context),
                 ),
               ],
             ),
@@ -135,6 +136,4 @@ class MoreView extends ConsumerWidget {
       ),
     );
   }
-
-
 }

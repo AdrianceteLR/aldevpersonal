@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import '../../theme/app_colors.dart';
 import 'register_view.dart';
 
@@ -12,14 +13,10 @@ class LoginView extends ConsumerStatefulWidget {
 }
 
 class _LoginViewState extends ConsumerState<LoginView> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+    final controller = ref.watch(authControllerProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -33,15 +30,15 @@ class _LoginViewState extends ConsumerState<LoginView> {
               const SizedBox(height: 60),
               _buildHeader(isDark),
               const SizedBox(height: 40),
-              _buildLoginForm(isDark),
+              _buildLoginForm(isDark, controller),
               const SizedBox(height: 24),
-              _buildLoginButton(authState),
+              _buildLoginButton(authState, controller),
               const SizedBox(height: 16),
               _buildDivider(isDark),
               const SizedBox(height: 16),
-              _buildGoogleButton(authState),
+              _buildGoogleButton(authState, controller),
               const SizedBox(height: 24),
-              _buildForgotPassword(isDark),
+              _buildForgotPassword(controller),
               const SizedBox(height: 16),
               _buildRegisterLink(isDark),
             ],
@@ -87,13 +84,13 @@ class _LoginViewState extends ConsumerState<LoginView> {
     );
   }
 
-  Widget _buildLoginForm(bool isDark) {
+  Widget _buildLoginForm(bool isDark, AuthController controller) {
     return Form(
-      key: _formKey,
+      key: controller.formKey,
       child: Column(
         children: [
           TextFormField(
-            controller: _emailController,
+            controller: controller.emailController,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
             decoration: InputDecoration(
@@ -103,46 +100,36 @@ class _LoginViewState extends ConsumerState<LoginView> {
               filled: true,
               fillColor: isDark ? AppColors.surface : Colors.white,
             ),
-            validator: (value) {
-              if (value?.isEmpty == true) return 'Email requerido';
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
-                return 'Email inválido';
-              }
-              return null;
-            },
+            validator: controller.validateEmail,
           ),
           const SizedBox(height: 16),
           TextFormField(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
+            controller: controller.passwordController,
+            obscureText: controller.obscurePassword,
             style: TextStyle(color: isDark ? AppColors.textPrimary : Colors.black87),
             decoration: InputDecoration(
               labelText: 'Contraseña',
               prefixIcon: const Icon(Icons.lock_outlined),
               suffixIcon: IconButton(
-                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                onPressed: () => controller.togglePasswordVisibility(),
+                icon: Icon(controller.obscurePassword ? Icons.visibility : Icons.visibility_off),
               ),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               filled: true,
               fillColor: isDark ? AppColors.surface : Colors.white,
             ),
-            validator: (value) {
-              if (value?.isEmpty == true) return 'Contraseña requerida';
-              if (value!.length < 6) return 'Mínimo 6 caracteres';
-              return null;
-            },
+            validator: controller.validatePassword,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLoginButton(AsyncValue<void> authState) {
+  Widget _buildLoginButton(AsyncValue<void> authState, AuthController controller) {
     return SizedBox(
       height: 50,
       child: ElevatedButton(
-        onPressed: authState.isLoading ? null : _handleLogin,
+        onPressed: authState.isLoading ? null : () => controller.handleLogin(context),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -173,11 +160,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
     );
   }
 
-  Widget _buildGoogleButton(AsyncValue<void> authState) {
+  Widget _buildGoogleButton(AsyncValue<void> authState, AuthController controller) {
     return SizedBox(
       height: 50,
       child: OutlinedButton.icon(
-        onPressed: authState.isLoading ? null : _handleGoogleSignIn,
+        onPressed: authState.isLoading ? null : () => controller.handleGoogleSignIn(context),
         icon: const Icon(Icons.g_mobiledata, size: 24),
         label: const Text('Continuar con Google'),
         style: OutlinedButton.styleFrom(
@@ -188,10 +175,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
     );
   }
 
-  Widget _buildForgotPassword(bool isDark) {
+  Widget _buildForgotPassword(AuthController controller) {
     return TextButton(
-      onPressed: _showForgotPasswordDialog,
-      child: Text(
+      onPressed: () => controller.showForgotPasswordDialog(context),
+      child: const Text(
         '¿Olvidaste tu contraseña?',
         style: TextStyle(color: AppColors.primary),
       ),
@@ -215,91 +202,5 @@ class _LoginViewState extends ConsumerState<LoginView> {
         ),
       ],
     );
-  }
-
-  void _handleLogin() async {
-    if (_formKey.currentState?.validate() == true) {
-      final notifier = ref.read(authNotifierProvider.notifier);
-      await notifier.signInWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-      
-      if (mounted) {
-        final authState = ref.read(authNotifierProvider);
-        if (authState.hasError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(authState.error.toString()),
-              backgroundColor: AppColors.danger,
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  void _handleGoogleSignIn() async {
-    final notifier = ref.read(authNotifierProvider.notifier);
-    await notifier.signInWithGoogle();
-    
-    if (mounted) {
-      final authState = ref.read(authNotifierProvider);
-      if (authState.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(authState.error.toString()),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showForgotPasswordDialog() {
-    final emailController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Restablecer Contraseña'),
-        content: TextField(
-          controller: emailController,
-          decoration: const InputDecoration(
-            labelText: 'Email',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (emailController.text.isNotEmpty) {
-                await ref.read(authNotifierProvider.notifier)
-                    .resetPassword(emailController.text.trim());
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Email de restablecimiento enviado'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              }
-            },
-            child: const Text('Enviar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

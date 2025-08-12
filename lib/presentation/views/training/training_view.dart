@@ -31,7 +31,7 @@ class _TrainingViewState extends ConsumerState<TrainingView> with TickerProvider
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final trainingState = ref.watch(trainingProvider);
-    final controller = TrainingController(ref);
+    final controller = ref.watch(trainingControllerProvider.notifier);
     
     if (trainingState.isLoading) {
       return Scaffold(
@@ -83,8 +83,6 @@ class _TrainingViewState extends ConsumerState<TrainingView> with TickerProvider
       ),
     );
   }
-
-
 
   @override
   void dispose() {
