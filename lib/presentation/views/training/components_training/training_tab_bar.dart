@@ -27,8 +27,11 @@ class TrainingTabBar extends StatelessWidget {
         ),
         labelColor: AppColors.textPrimary,
         unselectedLabelColor: isDark ? AppColors.textSecondary : Colors.black54,
+        isScrollable: true,
+        tabAlignment: TabAlignment.center,
         tabs: const [
           Tab(text: 'Hoy'),
+          Tab(text: 'Calendario'),
           Tab(text: 'Progreso'),
           Tab(text: 'Historial'),
         ],

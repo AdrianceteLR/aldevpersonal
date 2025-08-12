@@ -1,44 +1,89 @@
 import 'package:flutter/material.dart';
 import '../../../../domain/models/training_entry_model.dart';
+import '../../../../domain/providers/training_provider.dart';
 import '../../../../widgets/training_summary_card.dart';
 import '../../../../widgets/workout_plan_card.dart';
 import '../../../theme/app_colors.dart';
 
 class TodayTab extends StatelessWidget {
   final Function(BuildContext, WorkoutPlan) onWorkoutTap;
+  final TrainingState trainingState;
 
   const TodayTab({
     super.key,
     required this.onWorkoutTap,
+    required this.trainingState,
   });
 
   @override
   Widget build(BuildContext context) {
+    final todayWorkouts = _getTodayWorkouts();
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Column(
             children: [
-              Expanded(
-                child: TrainingSummaryCard(
-                  title: 'Completados',
-                  value: '2/4',
-                  subtitle: 'Ejercicios hoy',
-                  icon: Icons.check_circle,
-                  color: AppColors.success,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: TrainingSummaryCard(
+                        title: 'Completados',
+                        value: '${_getCompletedExercisesToday()}/${_getTotalExercisesToday()}',
+                        subtitle: 'ejercicios hoy',
+                        icon: Icons.check_circle,
+                        color: AppColors.success,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: TrainingSummaryCard(
+                        title: 'Racha',
+                        value: '${_getStreakDays()}',
+                        subtitle: 'días seguidos',
+                        icon: Icons.local_fire_department,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TrainingSummaryCard(
-                  title: 'Tiempo',
-                  value: '45min',
-                  subtitle: 'Entrenando',
-                  icon: Icons.timer,
-                  color: AppColors.accent,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: TrainingSummaryCard(
+                        title: 'Calorías',
+                        value: _getWatchCalories(),
+                        subtitle: 'desde el reloj',
+                        icon: Icons.watch,
+                        color: AppColors.danger,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: TrainingSummaryCard(
+                        title: 'Recuperación',
+                        value: _getRecoveryStatus(),
+                        subtitle: _getRecoverySubtitle(),
+                        icon: _getRecoveryIcon(),
+                        color: _getRecoveryColor(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -54,71 +99,170 @@ class TodayTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...List.generate(2, (index) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: WorkoutPlanCard(
-              workout: _getMockWorkouts()[index],
-              onTap: () => onWorkoutTap(context, _getMockWorkouts()[index]),
-            ),
-          )),
+          if (todayWorkouts.isEmpty)
+            Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  Icon(
+                    Icons.fitness_center,
+                    size: 64,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.textSecondary
+                        : Colors.black54,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No hay entrenamientos programados para hoy',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.textSecondary
+                          : Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...todayWorkouts.map((workout) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: WorkoutPlanCard(
+                workout: workout,
+                onTap: () => onWorkoutTap(context, workout),
+                onExerciseToggle: (exerciseName, completed) {
+                  // This will be handled by the controller in the parent
+                },
+              ),
+            )),
         ],
       ),
     );
   }
 
-  List<WorkoutPlan> _getMockWorkouts() {
-    return [
-      WorkoutPlan(
-        id: '1',
-        name: 'Pecho y Tríceps',
-        exercises: [
-          const PlannedExercise(
-            name: 'Press de Banca',
-            targetSets: 4,
-            targetReps: 8,
-            targetWeight: 80,
-            completed: true,
-          ),
-          const PlannedExercise(
-            name: 'Press Inclinado',
-            targetSets: 3,
-            targetReps: 10,
-            targetWeight: 60,
-            completed: true,
-          ),
-          const PlannedExercise(
-            name: 'Fondos',
-            targetSets: 3,
-            targetReps: 12,
-            targetWeight: 0,
-            completed: false,
-          ),
-        ],
-        scheduledDate: DateTime.now(),
-        completed: false,
-      ),
-      WorkoutPlan(
-        id: '2',
-        name: 'Espalda y Bíceps',
-        exercises: [
-          const PlannedExercise(
-            name: 'Dominadas',
-            targetSets: 4,
-            targetReps: 6,
-            targetWeight: 0,
-            completed: false,
-          ),
-          const PlannedExercise(
-            name: 'Remo con Barra',
-            targetSets: 4,
-            targetReps: 8,
-            targetWeight: 70,
-            completed: false,
-          ),
-        ],
-        scheduledDate: DateTime.now().add(const Duration(days: 1)),
-        completed: false,
-      ),
-    ];
+  List<WorkoutPlan> _getTodayWorkouts() {
+    final today = DateTime.now();
+    return trainingState.workoutPlans.where((workout) {
+      return workout.scheduledDate.day == today.day &&
+             workout.scheduledDate.month == today.month &&
+             workout.scheduledDate.year == today.year;
+    }).toList();
+  }
+
+  int _getCompletedExercisesToday() {
+    return _getTodayWorkouts()
+        .expand((workout) => workout.exercises)
+        .where((exercise) => exercise.completed)
+        .length;
+  }
+
+  int _getTotalExercisesToday() {
+    return _getTodayWorkouts()
+        .expand((workout) => workout.exercises)
+        .length;
+  }
+
+  int _getStreakDays() {
+    // Calcular días consecutivos de entrenamiento
+    int streak = 0;
+    DateTime currentDate = DateTime.now();
+    
+    while (true) {
+      final dayWorkouts = trainingState.workoutPlans.where((workout) {
+        return workout.scheduledDate.day == currentDate.day &&
+               workout.scheduledDate.month == currentDate.month &&
+               workout.scheduledDate.year == currentDate.year &&
+               workout.completed;
+      }).toList();
+      
+      if (dayWorkouts.isEmpty) break;
+      streak++;
+      currentDate = currentDate.subtract(const Duration(days: 1));
+    }
+    
+    return streak;
+  }
+
+  String _getWatchCalories() {
+    // TODO: Integrar con datos del reloj inteligente
+    // Por ahora retorna datos simulados
+    final completedExercises = _getCompletedExercisesToday();
+    if (completedExercises == 0) return 'Sin datos';
+    
+    final estimatedCalories = completedExercises * 25; // 25 kcal por ejercicio
+    return '${estimatedCalories} kcal';
+  }
+
+  String _getRecoveryStatus() {
+    final lastSleep = _getLastSleepEntry();
+    final daysSinceLastWorkout = _getDaysSinceLastWorkout();
+    final sleepHours = _getSleepHours(lastSleep);
+    
+    if (lastSleep != null && sleepHours >= 7 && daysSinceLastWorkout <= 1) {
+      return 'Óptima';
+    } else if (lastSleep != null && sleepHours >= 6) {
+      return 'Buena';
+    } else {
+      return 'Necesita descanso';
+    }
+  }
+
+  double _getSleepHours(SleepEntry? sleepEntry) {
+    if (sleepEntry == null) return 0;
+    final duration = sleepEntry.wakeTime.difference(sleepEntry.bedTime);
+    return duration.inMinutes / 60.0;
+  }
+
+  String _getRecoverySubtitle() {
+    final status = _getRecoveryStatus();
+    switch (status) {
+      case 'Óptima':
+        return 'Listo para entrenar';
+      case 'Buena':
+        return 'Puedes entrenar';
+      default:
+        return 'Considera descansar';
+    }
+  }
+
+  IconData _getRecoveryIcon() {
+    final status = _getRecoveryStatus();
+    switch (status) {
+      case 'Óptima':
+        return Icons.favorite;
+      case 'Buena':
+        return Icons.favorite_border;
+      default:
+        return Icons.heart_broken;
+    }
+  }
+
+  Color _getRecoveryColor() {
+    final status = _getRecoveryStatus();
+    switch (status) {
+      case 'Óptima':
+        return AppColors.success;
+      case 'Buena':
+        return AppColors.primary;
+      default:
+        return AppColors.danger;
+    }
+  }
+
+  SleepEntry? _getLastSleepEntry() {
+    if (trainingState.sleepEntries.isEmpty) return null;
+    return trainingState.sleepEntries.last;
+  }
+
+  int _getDaysSinceLastWorkout() {
+    final completedWorkouts = trainingState.workoutPlans
+        .where((workout) => workout.completed)
+        .toList();
+    
+    if (completedWorkouts.isEmpty) return 999;
+    
+    final lastWorkout = completedWorkouts.last;
+    final daysDifference = DateTime.now().difference(lastWorkout.scheduledDate).inDays;
+    return daysDifference;
   }
 }

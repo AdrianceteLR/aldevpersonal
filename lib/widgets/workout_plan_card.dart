@@ -5,7 +5,7 @@ import '../domain/models/training_entry_model.dart';
 class WorkoutPlanCard extends StatelessWidget {
   final WorkoutPlan workout;
   final VoidCallback? onTap;
-  final Function(String exerciseId, bool completed)? onExerciseToggle;
+  final Function(String exerciseName, bool completed)? onExerciseToggle;
 
   const WorkoutPlanCard({
     super.key,
@@ -108,10 +108,15 @@ class WorkoutPlanCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
-              Icon(
-                exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
-                size: 16,
-                color: exercise.completed ? AppColors.success : (isDark ? AppColors.textSecondary : Colors.black54),
+              GestureDetector(
+                onTap: onExerciseToggle != null 
+                    ? () => onExerciseToggle!(exercise.name, !exercise.completed)
+                    : null,
+                child: Icon(
+                  exercise.completed ? Icons.check_circle : Icons.radio_button_unchecked,
+                  size: 16,
+                  color: exercise.completed ? AppColors.success : (isDark ? AppColors.textSecondary : Colors.black54),
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
