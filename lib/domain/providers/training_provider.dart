@@ -41,87 +41,24 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
     state = state.copyWith(isLoading: true);
     
     try {
-      // Load existing data
       final workouts = await _trainingService.getWorkoutPlans();
       final entries = await _trainingService.getTrainingEntries();
       final sleepEntries = await _trainingService.getSleepEntries();
       
-      // If no workouts exist, add some initial mock data
-      if (workouts.isEmpty) {
-        final mockWorkouts = [
-          WorkoutPlan(
-            id: '1',
-            name: 'Pecho y Tríceps',
-            exercises: [
-              const PlannedExercise(
-                name: 'Press de Banca',
-                targetSets: 4,
-                targetReps: 8,
-                targetWeight: 80,
-                completed: true,
-              ),
-              const PlannedExercise(
-                name: 'Press Inclinado',
-                targetSets: 3,
-                targetReps: 10,
-                targetWeight: 60,
-                completed: true,
-              ),
-              const PlannedExercise(
-                name: 'Fondos',
-                targetSets: 3,
-                targetReps: 12,
-                targetWeight: 0,
-                completed: false,
-              ),
-            ],
-            scheduledDate: DateTime.now(),
-            completed: false,
-          ),
-          WorkoutPlan(
-            id: '2',
-            name: 'Espalda y Bíceps',
-            exercises: [
-              const PlannedExercise(
-                name: 'Dominadas',
-                targetSets: 4,
-                targetReps: 6,
-                targetWeight: 0,
-                completed: false,
-              ),
-              const PlannedExercise(
-                name: 'Remo con Barra',
-                targetSets: 4,
-                targetReps: 8,
-                targetWeight: 70,
-                completed: false,
-              ),
-            ],
-            scheduledDate: DateTime.now().add(const Duration(days: 1)),
-            completed: false,
-          ),
-        ];
-        
-        for (final workout in mockWorkouts) {
-          await _trainingService.addWorkoutPlan(workout);
-        }
-        
-        state = state.copyWith(
-          workoutPlans: mockWorkouts,
-          trainingEntries: entries,
-          sleepEntries: sleepEntries,
-          isLoading: false,
-        );
-      } else {
-        state = state.copyWith(
-          workoutPlans: workouts,
-          trainingEntries: entries,
-          sleepEntries: sleepEntries,
-          isLoading: false,
-        );
-      }
+      state = state.copyWith(
+        workoutPlans: workouts,
+        trainingEntries: entries,
+        sleepEntries: sleepEntries,
+        isLoading: false,
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      // En caso de error (sin conexión), mantener listas vacías
+      state = state.copyWith(
+        workoutPlans: [],
+        trainingEntries: [],
+        sleepEntries: [],
+        isLoading: false,
+      );
     }
   }
 

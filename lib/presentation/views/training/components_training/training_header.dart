@@ -3,12 +3,10 @@ import '../../../theme/app_colors.dart';
 
 class TrainingHeader extends StatelessWidget {
   final bool isDark;
-  final VoidCallback onSleepTap;
 
   const TrainingHeader({
     super.key,
     required this.isDark,
-    required this.onSleepTap,
   });
 
   @override
@@ -38,13 +36,7 @@ class TrainingHeader extends StatelessWidget {
               ),
             ],
           ),
-          IconButton(
-            onPressed: onSleepTap,
-            icon: Icon(
-              Icons.bedtime,
-              color: isDark ? AppColors.textPrimary : Colors.black87,
-            ),
-          ),
+
         ],
       ),
     );

@@ -48,7 +48,6 @@ class _TrainingViewState extends ConsumerState<TrainingView> with TickerProvider
         children: [
           TrainingHeader(
             isDark: isDark,
-            onSleepTap: () => TrainingDialogs.showSleepDialog(context, controller),
           ),
           TrainingTabBar(
             tabController: _tabController,

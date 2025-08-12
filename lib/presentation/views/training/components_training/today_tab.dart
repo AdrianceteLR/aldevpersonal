@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../domain/models/training_entry_model.dart';
 import '../../../../domain/providers/training_provider.dart';
 import '../../../../widgets/training_summary_card.dart';
 import '../../../../widgets/workout_plan_card.dart';
 import '../../../theme/app_colors.dart';
+import '../../../controllers/training_controller.dart';
+import 'training_dialogs.dart';
 
-class TodayTab extends StatelessWidget {
+class TodayTab extends ConsumerWidget {
   final Function(BuildContext, WorkoutPlan) onWorkoutTap;
   final TrainingState trainingState;
 
@@ -16,7 +19,7 @@ class TodayTab extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final todayWorkouts = _getTodayWorkouts();
     
     return SingleChildScrollView(
@@ -45,11 +48,12 @@ class TodayTab extends StatelessWidget {
                     child: SizedBox(
                       height: 200,
                       child: TrainingSummaryCard(
-                        title: 'Racha',
-                        value: '${_getStreakDays()}',
-                        subtitle: 'días seguidos',
-                        icon: Icons.local_fire_department,
-                        color: AppColors.accent,
+                        title: 'Peso',
+                        value: _getCurrentWeight(),
+                        subtitle: 'actual',
+                        icon: Icons.monitor_weight,
+                        color: AppColors.primary,
+                        onTap: () => _showWeightDialog(context, ref),
                       ),
                     ),
                   ),
@@ -62,11 +66,12 @@ class TodayTab extends StatelessWidget {
                     child: SizedBox(
                       height: 200,
                       child: TrainingSummaryCard(
-                        title: 'Calorías',
-                        value: _getWatchCalories(),
-                        subtitle: 'desde el reloj',
-                        icon: Icons.watch,
-                        color: AppColors.danger,
+                        title: 'Sueño',
+                        value: _getSleepHoursDisplay(),
+                        subtitle: 'anoche',
+                        icon: Icons.bedtime,
+                        color: AppColors.accent,
+                        onTap: () => _showSleepDialog(context, ref),
                       ),
                     ),
                   ),
@@ -210,7 +215,9 @@ class TodayTab extends StatelessWidget {
   double _getSleepHours(SleepEntry? sleepEntry) {
     if (sleepEntry == null) return 0;
     final duration = sleepEntry.wakeTime.difference(sleepEntry.bedTime);
-    return duration.inMinutes / 60.0;
+    final hours = duration.inMinutes / 60.0;
+
+    return hours;
   }
 
   String _getRecoverySubtitle() {
@@ -251,7 +258,10 @@ class TodayTab extends StatelessWidget {
 
   SleepEntry? _getLastSleepEntry() {
     if (trainingState.sleepEntries.isEmpty) return null;
-    return trainingState.sleepEntries.last;
+    // Obtener la entrada de sueño más reciente por fecha
+    final sortedEntries = trainingState.sleepEntries.toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    return sortedEntries.first;
   }
 
   int _getDaysSinceLastWorkout() {
@@ -264,5 +274,29 @@ class TodayTab extends StatelessWidget {
     final lastWorkout = completedWorkouts.last;
     final daysDifference = DateTime.now().difference(lastWorkout.scheduledDate).inDays;
     return daysDifference;
+  }
+
+  String _getSleepHoursDisplay() {
+    final lastSleep = _getLastSleepEntry();
+    if (lastSleep == null) return 'Sin datos';
+    
+    final hours = _getSleepHours(lastSleep);
+    return '${hours.toStringAsFixed(1)}h';
+  }
+
+  String _getCurrentWeight() {
+    // TODO: Integrar con datos reales de peso
+    // Por ahora retorna un valor simulado
+    return '75.2 kg';
+  }
+
+  void _showSleepDialog(BuildContext context, WidgetRef ref) {
+    final controller = TrainingController(ref);
+    TrainingDialogs.showSleepDialog(context, controller);
+  }
+
+  void _showWeightDialog(BuildContext context, WidgetRef ref) {
+    final controller = TrainingController(ref);
+    TrainingDialogs.showWeightDialog(context, controller);
   }
 }

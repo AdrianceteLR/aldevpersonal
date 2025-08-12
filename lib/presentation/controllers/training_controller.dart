@@ -17,13 +17,16 @@ class TrainingController {
   }
 
   void addSleepEntry(int hours, int quality) {
+    final now = DateTime.now();
+    final bedTime = now.subtract(Duration(hours: hours));
     final sleepEntry = SleepEntry(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      bedTime: DateTime.now().subtract(Duration(hours: hours)),
-      wakeTime: DateTime.now(),
+      id: now.millisecondsSinceEpoch.toString(),
+      bedTime: bedTime,
+      wakeTime: now,
       quality: quality,
-      date: DateTime.now(),
+      date: now,
     );
+
     ref.read(trainingProvider.notifier).addSleepEntry(sleepEntry);
   }
 
@@ -82,41 +85,23 @@ class TrainingController {
   }
 
   List<WorkoutPlan> getWorkoutTemplates() {
-    return [
-      WorkoutPlan(
-        id: 'template_1',
-        name: 'Push (Pecho, Hombros, Tríceps)',
-        exercises: [
-          const PlannedExercise(name: 'Press de Banca', targetSets: 4, targetReps: 8, targetWeight: 80, completed: false),
-          const PlannedExercise(name: 'Press Militar', targetSets: 3, targetReps: 10, targetWeight: 50, completed: false),
-          const PlannedExercise(name: 'Press Inclinado', targetSets: 3, targetReps: 10, targetWeight: 60, completed: false),
-          const PlannedExercise(name: 'Extensiones de Tríceps', targetSets: 3, targetReps: 12, targetWeight: 30, completed: false),
-        ],
-        scheduledDate: DateTime.now(),
-        completed: false,
-      ),
-      WorkoutPlan(
-        id: 'template_2',
-        name: 'Pull (Espalda, Bíceps)',
-        exercises: [
-          const PlannedExercise(name: 'Dominadas', targetSets: 4, targetReps: 6, targetWeight: 0, completed: false),
-          const PlannedExercise(name: 'Remo con Barra', targetSets: 4, targetReps: 8, targetWeight: 70, completed: false),
-          const PlannedExercise(name: 'Curl de Bíceps', targetSets: 3, targetReps: 12, targetWeight: 20, completed: false),
-        ],
-        scheduledDate: DateTime.now(),
-        completed: false,
-      ),
-      WorkoutPlan(
-        id: 'template_3',
-        name: 'Legs (Piernas)',
-        exercises: [
-          const PlannedExercise(name: 'Sentadillas', targetSets: 4, targetReps: 10, targetWeight: 100, completed: false),
-          const PlannedExercise(name: 'Peso Muerto', targetSets: 4, targetReps: 6, targetWeight: 120, completed: false),
-          const PlannedExercise(name: 'Prensa de Piernas', targetSets: 3, targetReps: 12, targetWeight: 150, completed: false),
-        ],
-        scheduledDate: DateTime.now(),
-        completed: false,
-      ),
-    ];
+    return [];
+  }
+
+  void addSleepEntryWithTimes(DateTime bedTime, DateTime wakeTime, int quality) {
+    final sleepEntry = SleepEntry(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      bedTime: bedTime,
+      wakeTime: wakeTime,
+      quality: quality,
+      date: DateTime.now(),
+    );
+    ref.read(trainingProvider.notifier).addSleepEntry(sleepEntry);
+  }
+
+  void addWeightEntry(double weight) {
+    // TODO: Crear modelo WeightEntry y guardarlo en Firebase
+    // Por ahora solo mostramos confirmación
+    print('Weight entry: $weight kg at ${DateTime.now()}');
   }
 }

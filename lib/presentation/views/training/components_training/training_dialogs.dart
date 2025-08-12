@@ -112,80 +112,273 @@ class TrainingDialogs {
 
   static void showSleepDialog(BuildContext context, TrainingController controller) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hoursController = TextEditingController();
+    
+    // Simular datos del reloj (en el futuro vendrán de la integración real)
+    final mockWatchData = _getMockWatchSleepData();
+    
+    DateTime selectedBedTime = mockWatchData['bedTime']!;
+    DateTime selectedWakeTime = mockWatchData['wakeTime']!;
     int selectedQuality = 3;
     
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: isDark ? AppColors.surface : Colors.white,
-          title: Text(
-            'Registrar Sueño',
-            style: TextStyle(
-              color: isDark ? AppColors.textPrimary : Colors.black87,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: hoursController,
-                style: TextStyle(
-                  color: isDark ? AppColors.textPrimary : Colors.black87,
+        builder: (context, setState) {
+          final duration = selectedWakeTime.difference(selectedBedTime);
+          final hours = duration.inMinutes / 60.0;
+          
+          return AlertDialog(
+            backgroundColor: isDark ? AppColors.surface : Colors.white,
+            title: Row(
+              children: [
+                const Icon(Icons.watch, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Datos del Reloj',
+                  style: TextStyle(
+                    color: isDark ? AppColors.textPrimary : Colors.black87,
+                  ),
                 ),
-                decoration: InputDecoration(
-                  labelText: 'Horas dormidas',
-                  labelStyle: TextStyle(
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Te acostaste:', style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54)),
+                          Text(_formatTime(selectedBedTime), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Te levantaste:', style: TextStyle(color: isDark ? AppColors.textSecondary : Colors.black54)),
+                          Text(_formatTime(selectedWakeTime), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total: ${hours.toStringAsFixed(1)} horas',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _showTimeAdjustDialog(context, true, selectedBedTime, (time) {
+                          setState(() => selectedBedTime = time);
+                        }),
+                        icon: const Icon(Icons.bedtime, size: 16),
+                        label: const Text('Ajustar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary.withOpacity(0.2),
+                          foregroundColor: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _showTimeAdjustDialog(context, false, selectedWakeTime, (time) {
+                          setState(() => selectedWakeTime = time);
+                        }),
+                        icon: const Icon(Icons.wb_sunny, size: 16),
+                        label: const Text('Ajustar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary.withOpacity(0.2),
+                          foregroundColor: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '¿Cómo te sientes?',
+                  style: TextStyle(
                     color: isDark ? AppColors.textSecondary : Colors.black54,
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Calidad del sueño',
-                style: TextStyle(
-                  color: isDark ? AppColors.textSecondary : Colors.black54,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(5, (index) => IconButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedQuality = index + 1;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.star,
+                      color: index < selectedQuality
+                          ? AppColors.accent
+                          : (isDark ? AppColors.textSecondary : Colors.black54),
+                    ),
+                  )),
                 ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondary)),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(5, (index) => IconButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedQuality = index + 1;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.star,
-                    color: index < selectedQuality
-                        ? AppColors.accent
-                        : (isDark ? AppColors.textSecondary : Colors.black54),
-                  ),
-                )),
+              TextButton(
+                onPressed: () {
+                  controller.addSleepEntryWithTimes(selectedBedTime, selectedWakeTime, selectedQuality);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sueño registrado correctamente')),
+                  );
+                },
+                child: const Text('Confirmar', style: TextStyle(color: AppColors.primary)),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondary)),
-            ),
-            TextButton(
-              onPressed: () {
-                final hours = int.tryParse(hoursController.text) ?? 8;
-                controller.addSleepEntry(hours, selectedQuality);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sueño registrado correctamente')),
-                );
-              },
-              child: const Text('Guardar', style: TextStyle(color: AppColors.primary)),
+          );
+        },
+      ),
+    );
+  }
+
+  static Map<String, DateTime> _getMockWatchSleepData() {
+    // TODO: Reemplazar con datos reales del reloj inteligente
+    final now = DateTime.now();
+    final lastNight = DateTime(now.year, now.month, now.day - 1, 23, 30);
+    final thisMorning = DateTime(now.year, now.month, now.day, 7, 15);
+    
+    return {
+      'bedTime': lastNight,
+      'wakeTime': thisMorning,
+    };
+  }
+
+  static String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  static void _showTimeAdjustDialog(BuildContext context, bool isBedTime, DateTime currentTime, Function(DateTime) onTimeChanged) {
+    showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(currentTime),
+    ).then((time) {
+      if (time != null) {
+        final newTime = DateTime(
+          currentTime.year,
+          currentTime.month,
+          isBedTime ? currentTime.day - 1 : currentTime.day,
+          time.hour,
+          time.minute,
+        );
+        onTimeChanged(newTime);
+      }
+    });
+  }
+
+  static void showWeightDialog(BuildContext context, TrainingController controller) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final weightController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.surface : Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.monitor_weight, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(
+              'Registrar Peso',
+              style: TextStyle(
+                color: isDark ? AppColors.textPrimary : Colors.black87,
+              ),
             ),
           ],
         ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: weightController,
+              style: TextStyle(
+                color: isDark ? AppColors.textPrimary : Colors.black87,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Peso actual (kg)',
+                hintText: 'Ej: 75.5',
+                labelStyle: TextStyle(
+                  color: isDark ? AppColors.textSecondary : Colors.black54,
+                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.monitor_weight),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Registra tu peso para seguir tu progreso',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.textSecondary : Colors.black54,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              final weight = double.tryParse(weightController.text);
+              if (weight != null && weight > 0) {
+                controller.addWeightEntry(weight);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Peso registrado correctamente')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ingresa un peso válido')),
+                );
+              }
+            },
+            child: const Text('Guardar', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
       ),
     );
   }

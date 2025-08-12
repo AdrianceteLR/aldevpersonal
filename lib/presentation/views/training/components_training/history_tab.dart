@@ -83,45 +83,7 @@ class HistoryTab extends StatelessWidget {
                 ),
               ),
             )),
-          // Mock historical data for demonstration
-          ...List.generate(3, (index) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Card(
-              color: isDark ? AppColors.surface : Colors.white,
-              child: ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: AppColors.success,
-                    size: 20,
-                  ),
-                ),
-                title: Text(
-                  'Entrenamiento ${index + 1}',
-                  style: TextStyle(
-                    color: isDark ? AppColors.textPrimary : Colors.black87,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  '${DateTime.now().subtract(Duration(days: index + 1)).day}/${DateTime.now().month} - 45min',
-                  style: TextStyle(
-                    color: isDark ? AppColors.textSecondary : Colors.black54,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: isDark ? AppColors.textSecondary : Colors.black54,
-                ),
-              ),
-            ),
-          )),
+
         ],
       ),
     );
